@@ -1,0 +1,16 @@
+[package]
+name = "ssb-validate2-rsjs-node"
+version = "0.2.0"
+authors = ["Andrew Reid <glyph@mycelial.technology>"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+node-bindgen = { version = "4.0" }
+ssb-validate = { git = "https://github.com/mycognosist/ssb-validate" }
+ssb-verify-signatures = "1.0.0"
+
+[build-dependencies]
+node-bindgen = { version = "4.0", features = ["build"] }

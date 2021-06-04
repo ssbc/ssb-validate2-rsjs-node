@@ -1,0 +1,29 @@
+{
+  "name": "ssb-validate2-rsjs-node",
+  "version": "0.3.0",
+  "description": "Cryptographic validation of Scuttlebutt messages.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ssb-ngi-pointer/ssb-validate2-rsjs-node"
+  },
+  "author": "Andrew Reid <glyph@mycelial.technology>",
+  "license": "AGPL-3.0",
+  "devDependencies": {
+    "async-append-only-log": "^3.0.8",
+    "jasmine-core": "^3.7.1",
+    "jitdb": "^3.0.2",
+    "mkdirp": "^1.0.4",
+    "prettier": "^2.3.0",
+    "rimraf": "^3.0.2",
+    "ssb-fixtures": "^2.3.1",
+    "ssb-validate": "^4.1.4",
+    "tape": "^5.2.2"
+  },
+  "scripts": {
+    "build": "rm -rf dist && nj-cli build --release",
+    "test": "tape test/test.js && tape test/multiAuthorTest.js",
+    "perf": "tape test/perf.js && tape test/multiAuthorPerf.js",
+    "format-code": "prettier --write *.js test/*.js"
+  }
+}
