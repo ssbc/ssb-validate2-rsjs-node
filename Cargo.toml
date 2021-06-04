@@ -8,9 +8,10 @@ edition = "2018"
 crate-type = ["cdylib"]
 
 [dependencies]
-node-bindgen = { version = "4.0" }
+node-bindgen = "4.0"
 ssb-validate = { git = "https://github.com/mycognosist/ssb-validate" }
-ssb-verify-signatures = "1.0.0"
+# update to ssb-verify-signatures = "1.0.1" when crates.io has latest
+ssb-verify-signatures = { git = "https://github.com/sunrise-choir/ssb-verify-signatures" }
 
 [build-dependencies]
 node-bindgen = { version = "4.0", features = ["build"] }

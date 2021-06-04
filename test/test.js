@@ -25,7 +25,7 @@ const newLogPath = path.join(dir, "flume", "log.bipf");
 const indexesDir = path.join(dir, "indexes");
 
 // generate fixture
-rimraf.sync(dir, {maxBusyTries: 3});
+rimraf.sync(dir, { maxBusyTries: 3 });
 mkdirp.sync(dir);
 
 const SEED = "sloop";
