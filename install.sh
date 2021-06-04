@@ -8,11 +8,11 @@ if [ "$npm_config_platform" == "android" ]; then
   mkdir -p dist
   cargo build --release
   cd ..
-  cp ./target/$CARGO_BUILD_TARGET/release/libssb_validate2_rsjs.so ./native/dist/index.node
+  cp ./target/$CARGO_BUILD_TARGET/release/libssb_validate2_rsjs_node.so ./native/dist/index.node
 elif [ "$npm_config_platform" == "ios" ]; then
   cd native
   mkdir -p dist
   cargo build --release
   cd ..
-  cp ./target/$CARGO_BUILD_TARGET/release/libssb_validate2_rsjs.dylib ./native/dist/index.node
+  cp ./target/$CARGO_BUILD_TARGET/release/libssb_validate2_rsjs_node.dylib ./native/dist/index.node
 fi
