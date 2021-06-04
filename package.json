@@ -9,6 +9,9 @@
   },
   "author": "Andrew Reid <glyph@mycelial.technology>",
   "license": "AGPL-3.0",
+  "dependencies": {
+    "node-bindgen-loader": "^1.0.1"
+  },
   "devDependencies": {
     "async-append-only-log": "^3.0.8",
     "jasmine-core": "^3.7.1",
@@ -21,6 +24,8 @@
     "tape": "^5.2.2"
   },
   "scripts": {
+    "install": "./install.sh",
+    "postinstall": "./postinstall.sh",
     "build": "rm -rf dist && nj-cli build --release",
     "test": "tape test/test.js && tape test/multiAuthorTest.js",
     "perf": "tape test/perf.js && tape test/multiAuthorPerf.js",
