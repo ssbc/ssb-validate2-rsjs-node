@@ -1,8 +1,6 @@
 const fs = require('fs');
-const util = require('util');
 const path = require('path');
 const child_process = require('child_process');
-const exec = util.promisify(child_process.exec);
 const loader = require('node-bindgen-loader');
 const pkg = require('./package.json');
 
@@ -18,6 +16,25 @@ function mkdirp(folder) {
   try {
     fs.mkdirSync(folder);
   } catch (err) {}
+}
+
+function spawn(cmd) {
+  const [head, ...rest] = cmd.split(' ')
+  return new Promise((resolve, reject) => {
+    const proc = child_process.spawn(head, rest)
+    proc.stdout.on('data', (data) => {
+      process.stdout.write(data)
+    })
+    proc.stderr.on('data', (data) => {
+      process.stderr.write(data)
+    })
+    proc.on('close', (code) => {
+      resolve(code)
+    })
+    proc.on('error', (err) => {
+      reject(err)
+    })
+  })
 }
 
 function isGitRepo() {
@@ -46,9 +63,7 @@ const ext = {
 
   if (platform === 'android' || platform === 'ios') {
     mkdirp(path.join(__dirname, 'dist'));
-    const {stdout, stderr} = await exec('cargo build --release');
-    console.log(stdout);
-    console.error(stderr);
+    await spawn('cargo build --release')
     const TARGET = process.env['CARGO_BUILD_TARGET'];
     const LIBNAME = 'lib' + pkg.name.replace(/-/g, '_') + '.' + ext[platform];
     copy(
@@ -56,8 +71,6 @@ const ext = {
       path.join(__dirname, 'dist', 'index.node'),
     );
   } else if (!isGitRepo() && !prebuildExists()) {
-    const {stdout, stderr} = await exec('nj-cli build --release');
-    console.log(stdout);
-    console.error(stderr);
+    await spawn('nj-cli build --release')
   }
 })();
