@@ -12,7 +12,7 @@ async function copy(orig, dest) {
   await fs.promises.chmod(dest, st.mode);
 }
 
-async function mkdirp(folder) {
+function mkdirp(folder) {
   if (fs.existsSync(folder)) return;
   try {
     fs.mkdirSync(folder);
