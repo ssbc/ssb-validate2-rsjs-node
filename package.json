@@ -24,8 +24,8 @@
     "tape": "^5.2.2"
   },
   "scripts": {
-    "install": "./install.sh",
-    "postinstall": "./postinstall.sh",
+    "install": "node install.js",
+    "postinstall": "node postinstall.js",
     "build": "rm -rf dist && nj-cli build --release",
     "test": "tape test/test.js && tape test/multiAuthorTest.js",
     "perf": "tape test/perf.js && tape test/multiAuthorPerf.js",
