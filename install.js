@@ -1,7 +1,9 @@
 const fs = require('fs');
 const util = require('util');
+const path = require('path');
 const child_process = require('child_process');
 const exec = util.promisify(child_process.exec);
+const pkg = require('./package.json');
 
 async function copy(orig, dest) {
   const st = await fs.promises.stat(orig);
@@ -17,7 +19,7 @@ async function mkdirp(folder) {
   } catch (err) {}
 }
 
-const extensions = {
+const ext = {
   android: 'so',
   ios: 'dylib',
 };
@@ -26,18 +28,18 @@ const extensions = {
   // `npm_config_platform` is set when nodejs-mobile is controlling npm install
   // in order to build native modules, so we build our module here and move it
   // correctly
-  const platform = process.env['npm_config_platform']
+  const platform = process.env['npm_config_platform'];
 
   if (platform === 'android' || platform === 'ios') {
-    mkdirp('dist');
+    mkdirp(path.join(__dirname, 'dist'));
     const {stdout, stderr} = await exec('cargo build --release');
     console.log(stdout);
     console.error(stderr);
     const TARGET = process.env['CARGO_BUILD_TARGET'];
-    const EXT = extensions[platform]
+    const LIBNAME = 'lib' + pkg.name.replace(/-/g, '_') + '.' + ext[platform];
     copy(
-      `target/${TARGET}/release/libssb_validate2_rsjs_node.${EXT}`,
-      'dist/index.node',
+      path.join(__dirname, 'target', TARGET, 'release', LIBNAME),
+      path.join(__dirname, 'dist', 'index.node'),
     );
   }
 })();

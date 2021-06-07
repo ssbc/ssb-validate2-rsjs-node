@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 
 async function move(orig, dest) {
   await fs.promises.rename(orig, dest);
@@ -11,7 +12,6 @@ async function mkdirp(folder) {
   } catch (err) {}
 }
 
-
 (async function main() {
   // npm_config_platform exists only when nodejs-mobile is building our module
   const platform = process.env['npm_config_platform'];
@@ -19,8 +19,14 @@ async function mkdirp(folder) {
   // On iOS nodejs-mobile we need index.node to be a folder that
   // will be converted to a .framework
   if (platform === 'ios') {
-    move('dist/index.node', 'dist/index');
-    mkdirp('dist/index.node');
-    move('dist/index', 'dist/index.node/index');
+    move(
+      path.join(__dirname, 'dist', 'index.node'),
+      path.join(__dirname, 'dist', 'index'),
+    );
+    mkdirp(path.join(__dirname, 'dist', 'index.node'));
+    move(
+      path.join(__dirname, 'dist', 'index'),
+      path.join(__dirname, 'dist', 'index.node', 'index'),
+    );
   }
 })();
