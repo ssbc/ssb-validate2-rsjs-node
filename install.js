@@ -3,6 +3,7 @@ const util = require('util');
 const path = require('path');
 const child_process = require('child_process');
 const exec = util.promisify(child_process.exec);
+const loader = require('node-bindgen-loader');
 const pkg = require('./package.json');
 
 async function copy(orig, dest) {
@@ -17,6 +18,19 @@ function mkdirp(folder) {
   try {
     fs.mkdirSync(folder);
   } catch (err) {}
+}
+
+function isGitRepo() {
+  return fs.existsSync(path.join(__dirname, '.git'));
+}
+
+function prebuildExists() {
+  try {
+    const result = loader({dir: __dirname});
+    return !!result
+  } catch (err) {
+    return false
+  }
 }
 
 const ext = {
@@ -41,5 +55,9 @@ const ext = {
       path.join(__dirname, 'target', TARGET, 'release', LIBNAME),
       path.join(__dirname, 'dist', 'index.node'),
     );
+  } else if (!isGitRepo() && !prebuildExists()) {
+    const {stdout, stderr} = await exec('nj-cli build --release');
+    console.log(stdout);
+    console.error(stderr);
   }
 })();
