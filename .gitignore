@@ -3,6 +3,7 @@ notes
 goals
 /target
 /dist
+/prebuilds
 **/*~
 **/node_modules
 **/.DS_Store
