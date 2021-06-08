@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [15.x]
+        node-version: [16.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     runs-on: ${{ matrix.os }}
@@ -43,3 +43,80 @@ jobs:
 
       - name: Test
         run: npm run test
+
+  build-release:
+    name: Build for release
+    needs: test
+    if: ${{ startsWith(github.event.head_commit.message, 'release') }}
+
+    strategy:
+      matrix:
+        node-version: [12.x, 14.x, 16.x]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: install nj-cli
+        run: cargo install nj-cli
+
+      - name: npm install
+        run: npm install
+
+      - name: Compile
+        run: npm run build
+
+      - name: Tag .node as prebuild
+        run: npm run tag-prebuild
+
+      - name: Upload prebuild artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: prebuilds
+          path: prebuilds/
+
+  publish:
+    name: NPM Publish
+    needs: build-release
+    if: ${{ startsWith(github.event.head_commit.message, 'release') }}
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+        os: [ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: https://registry.npmjs.org/
+
+      - name: Download prebuild artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: prebuilds
+          path: prebuilds
+
+      - name: Check prebuilds
+        run: ls -laR prebuilds
+
+      - name: NPM Publish
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
