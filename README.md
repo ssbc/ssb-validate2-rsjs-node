@@ -42,6 +42,10 @@ npm run perf
 
 The default values for the performance benchmarks (`test/perf.js`) are 100 messages from 1 author, for a total of 10 iterations. These value constants can be changed in `test/perf.js`. Performance benchmarks for the multi-author method default to 100 messages from 5 authors, for a total of 10 iterations (`test/multiAuthorPerf.js`).
 
+## Releasing new versions
+
+To release a new version, all that you need to do is update the version number in `package.json` and commit with a message that starts with the word "release", e.g. `release 1.1.0`. Then, CI (GitHub Actions) will detect that, and compile this library for many variations of operating system and Node.js versions and then publish those as prebuilds to NPM. This repository has an environment variable `NPM_TOKEN` set up so that GitHub Actions has publish permissions for this package.
+
 ## License
 
 AGPL 3.0.
