@@ -3,57 +3,53 @@ const v = require('node-bindgen-loader')({
   dir: __dirname
 })
 
-const verifySignatures = (msgs) => {
+const stringify = (msg) => JSON.stringify(msg, null, 2)
+
+const verifySignatures = (msgs, cb) => {
   if (!Array.isArray(msgs)) return "input must be an array of message objects";
-  const jsonMsgs = msgs.map((msg) => {
-    return JSON.stringify(msg, null, 2);
-  });
-  return v.verifySignatures(jsonMsgs);
+  const jsonMsgs = msgs.map(stringify);
+  cb(v.verifySignatures(jsonMsgs));
 };
 
-const validateSingle = (msg, previous) => {
-  const jsonMsg = JSON.stringify(msg, null, 2);
+const validateSingle = (msg, previous, cb) => {
+  const jsonMsg = stringify(msg);
   if (previous) {
-    const jsonPrevious = JSON.stringify(previous, null, 2);
-    return v.validateSingle(jsonMsg, jsonPrevious);
+    const jsonPrevious = stringify(previous);
+    cb(v.validateSingle(jsonMsg, jsonPrevious));
+  } else {
+    cb(v.validateSingle(jsonMsg));
   }
-  return v.validateSingle(jsonMsg);
 };
 
-const validateBatch = (msgs, previous) => {
+const validateBatch = (msgs, previous, cb) => {
   if (!Array.isArray(msgs)) return "input must be an array of message objects";
-  const jsonMsgs = msgs.map((msg) => {
-    return JSON.stringify(msg, null, 2);
-  });
+  const jsonMsgs = msgs.map(stringify);
   if (previous) {
-    const jsonPrevious = JSON.stringify(previous, null, 2);
-    return v.validateBatch(jsonMsgs, jsonPrevious);
+    const jsonPrevious = stringify(previous);
+    cb(v.validateBatch(jsonMsgs, jsonPrevious));
+  } else {
+    cb(v.validateBatch(jsonMsgs));
   }
-  return v.validateBatch(jsonMsgs);
 };
 
-const validateOOOBatch = (msgs) => {
+const validateOOOBatch = (msgs, cb) => {
   if (!Array.isArray(msgs)) return "input must be an array of message objects";
-  const jsonMsgs = msgs.map((msg) => {
-    return JSON.stringify(msg, null, 2);
-  });
-  return v.validateOOOBatch(jsonMsgs);
+  const jsonMsgs = msgs.map(stringify);
+  cb(v.validateOOOBatch(jsonMsgs));
 };
 
-const validateMultiAuthorBatch = (msgs) => {
+const validateMultiAuthorBatch = (msgs, cb) => {
   if (!Array.isArray(msgs))
     throw new Error("input must be an array of message objects");
-  const jsonMsgs = msgs.map((msg) => {
-    return JSON.stringify(msg, null, 2);
-  });
-  return v.validateMultiAuthorBatch(jsonMsgs);
+  const jsonMsgs = msgs.map(stringify);
+  cb(v.validateMultiAuthorBatch(jsonMsgs));
 };
 
 // Mirrors the `ready` function for the `web` version of `ssb-validate2-rsjs`.
 // The function initializes WASM and WebWorkers in `web`. We define it here with
 // a callback so that both libraries can be safely called with the same code.
-const ready = async (cb) => {
-  if (cb) cb();
+const ready = (cb) => {
+  cb();
 };
 
 module.exports.ready = ready;
