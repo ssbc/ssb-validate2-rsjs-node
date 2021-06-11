@@ -75,6 +75,7 @@ test("core indexes", (t) => {
 
 // batch verification and validation for an array of multi-author out-of-order messages
 test("validateMultiAuthorBatch", (t) => {
+  t.plan(ITERATIONS);
   db.onReady(() => {
     query(
       fromDB(db),
@@ -83,13 +84,14 @@ test("validateMultiAuthorBatch", (t) => {
         var i;
         var totalDuration = 0;
         for (i = 0; i < ITERATIONS; i++) {
-          const start = Date.now();
           // shuffle array of msgs to generate out-of-order state
           msgs.sort(() => Math.random() - 0.5);
-          validate.validateMultiAuthorBatch(msgs);
-          const duration = Date.now() - start;
-          totalDuration += duration;
-          t.pass(`validated ${MESSAGES} messages in ${duration} ms`);
+          const start = Date.now();
+          validate.validateMultiAuthorBatch(msgs, () => {
+            const duration = Date.now() - start;
+            totalDuration += duration;
+            t.pass(`validated ${MESSAGES} messages in ${duration} ms`);
+          });
         }
         avgDuration = totalDuration / ITERATIONS;
         console.log(`average duration: ${avgDuration} ms`);

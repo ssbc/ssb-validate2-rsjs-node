@@ -95,9 +95,11 @@ test("batch verification of message signatures", (t) => {
       toCallback((err, msgs) => {
         if (err) t.fail(err);
         // attempt verification of all messages
-        t.equal(validate.verifySignatures(msgs), null, "success");
-        t.pass(`validated ${MESSAGES} messages`);
-        t.end();
+        validate.verifySignatures(msgs, (err) => {
+          t.equal(err, null, "success");
+          t.pass(`validated ${MESSAGES} messages`);
+          t.end();
+        });
       })
     );
   });
@@ -112,9 +114,11 @@ test("batch verification of out-of-order message signatures", (t) => {
         // shuffle the messages (generate out-of-order state)
         msgs.sort(() => Math.random() - 0.5);
         // attempt verification of all messages
-        t.equal(validate.verifySignatures(msgs), null, "success");
-        t.pass(`validated ${MESSAGES} messages`);
-        t.end();
+        validate.verifySignatures(msgs, (err) => {
+          t.equal(err, null, "success");
+          t.pass(`validated ${MESSAGES} messages`);
+          t.end();
+        })
       })
     );
   });
@@ -122,21 +126,25 @@ test("batch verification of out-of-order message signatures", (t) => {
 
 test("verification of single message signature (valid)", (t) => {
   let msgs = [validMsg];
-  t.equal(validate.verifySignatures(msgs), null, "success");
-  t.pass(`validated ${MESSAGES} messages`);
-  t.end();
+  validate.verifySignatures(msgs, (err) => {
+    t.equal(err, null, "success");
+    t.pass(`validated ${MESSAGES} messages`);
+    t.end();
+  })
 });
 
 test("verification of single message signature (invalid)", (t) => {
   let invalidMsg = validMsg;
   invalidMsg.value.content.following = false;
   let msgs = [invalidMsg];
-  t.match(
-    validate.verifySignatures(msgs),
-    /Signature was invalid/,
-    "found invalid message: Signature was invalid"
-  );
-  t.end();
+  validate.verifySignatures(msgs, (err) => {
+    t.match(
+      err,
+      /Signature was invalid/,
+      "found invalid message: Signature was invalid"
+    );
+    t.end();
+  })
 });
 
 test("validation of first message (`seq` == 1) without `previous`", (t) => {
@@ -146,9 +154,11 @@ test("validation of first message (`seq` == 1) without `previous`", (t) => {
       toCallback((err, msgs) => {
         if (err) t.fail(err);
         // attempt validation of single message (assume `previous` is null)
-        t.equal(validate.validateSingle(msgs[0]), null, "success");
-        t.pass(`validated ${MESSAGES} messages`);
-        t.end();
+        validate.validateSingle(msgs[0], null, (err) => {
+          t.equal(err, null, "success");
+          t.pass(`validated ${MESSAGES} messages`);
+          t.end();
+        })
       })
     );
   });
@@ -161,9 +171,11 @@ test("validation of a single message with `previous`", (t) => {
       toCallback((err, msgs) => {
         if (err) t.fail(err);
         // attempt validation of single message (include previous message)
-        t.equal(validate.validateSingle(msgs[1], msgs[0]), null, "success");
-        t.pass(`validated ${MESSAGES} messages`);
-        t.end();
+        validate.validateSingle(msgs[1], msgs[0], (err) => {
+          t.equal(err, null, "success");
+          t.pass(`validated ${MESSAGES} messages`);
+          t.end();
+        })
       })
     );
   });
@@ -176,12 +188,14 @@ test("validation of a single message (`seq` > 1) without `previous`", (t) => {
       toCallback((err, msgs) => {
         if (err) t.fail(err);
         // attempt validation of a single message without `previous`
-        t.match(
-          validate.validateSingle(msgs[3]),
-          /The first message of a feed must have seq of 1/,
-          "found invalid message: The first message of a feed must have seq of 1"
-        );
-        t.end();
+        validate.validateSingle(msgs[3], null, (err) => {
+          t.match(
+            err,
+            /The first message of a feed must have seq of 1/,
+            "found invalid message: The first message of a feed must have seq of 1"
+          );
+          t.end();
+        })
       })
     );
   });
@@ -194,9 +208,11 @@ test("batch validation of full feed", (t) => {
       toCallback((err, msgs) => {
         if (err) t.fail(err);
         // attempt validation of all messages (assume `previous` is null)
-        t.equal(validate.validateBatch(msgs), null, "success");
-        t.pass(`validated ${MESSAGES} messages`);
-        t.end();
+        validate.validateBatch(msgs, null, (err) => {
+          t.equal(err, null, "success");
+          t.pass(`validated ${MESSAGES} messages`);
+          t.end();
+        })
       })
     );
   });
@@ -211,9 +227,11 @@ test("batch validation of partial feed (previous seq == 1)", (t) => {
         // shift first msg into `previous`
         previous = msgs.shift();
         // attempt validation of all messages
-        t.equal(validate.validateBatch(msgs, previous), null, "success");
-        t.pass(`validated ${MESSAGES} messages`);
-        t.end();
+        validate.validateBatch(msgs, previous, (err) => {
+          t.equal(err, null, "success");
+          t.pass(`validated ${MESSAGES} messages`);
+          t.end();
+        })
       })
     );
   });
@@ -230,9 +248,11 @@ test("batch validation of partial feed (previous seq > 1)", (t) => {
         // shift second msg into `previous`
         previous = msgs.shift();
         // attempt validation of all messages
-        t.equal(validate.validateBatch(msgs, previous), null, "success");
-        t.pass(`validated ${MESSAGES} messages`);
-        t.end();
+        validate.validateBatch(msgs, previous, (err) => {
+          t.equal(err, null, "success");
+          t.pass(`validated ${MESSAGES} messages`);
+          t.end();
+        })
       })
     );
   });
@@ -247,12 +267,14 @@ test("batch validation of partial feed without `previous`", (t) => {
         // shift first msg into `previous`
         previous = msgs.shift();
         // attempt validation of all messages without `previous`
-        t.match(
-          validate.validateBatch(msgs),
-          /The first message of a feed must have seq of 1/,
-          "found invalid message: The first message of a feed must have seq of 1"
-        );
-        t.end();
+        validate.validateBatch(msgs, null, (err) => {
+          t.match(
+            err,
+            /The first message of a feed must have seq of 1/,
+            "found invalid message: The first message of a feed must have seq of 1"
+          );
+          t.end();
+        })
       })
     );
   });
@@ -267,9 +289,11 @@ test("batch validation of out-of-order messages", (t) => {
         // shuffle the messages (generate out-of-order state)
         msgs.sort(() => Math.random() - 0.5);
         // attempt validation of all messages
-        t.equal(validate.validateOOOBatch(msgs), null, "success");
-        t.pass(`validated ${MESSAGES} messages`);
-        t.end();
+        validate.validateOOOBatch(msgs, (err) => {
+          t.equal(err, null, "success");
+          t.pass(`validated ${MESSAGES} messages`);
+          t.end();
+        })
       })
     );
   });

@@ -75,6 +75,7 @@ test("core indexes", (t) => {
 
 // batch verification of signatures for an array of messages
 test("verifySignatures", (t) => {
+  t.plan(ITERATIONS);
   db.onReady(() => {
     query(
       fromDB(db),
@@ -84,10 +85,11 @@ test("verifySignatures", (t) => {
         var totalDuration = 0;
         for (i = 0; i < ITERATIONS; i++) {
           const start = Date.now();
-          validate.verifySignatures(msgs);
-          const duration = Date.now() - start;
-          totalDuration += duration;
-          t.pass(`verified ${MESSAGES} message signatures in ${duration} ms`);
+          validate.verifySignatures(msgs, () => {
+            const duration = Date.now() - start;
+            totalDuration += duration;
+            t.pass(`verified ${MESSAGES} message signatures in ${duration} ms`);
+          });
         }
         avgDuration = totalDuration / ITERATIONS;
         console.log(`average duration: ${avgDuration} ms`);
@@ -99,6 +101,7 @@ test("verifySignatures", (t) => {
 
 // verification and validation for a single message
 test("validateSingle", (t) => {
+  t.plan(ITERATIONS);
   db.onReady(() => {
     query(
       fromDB(db),
@@ -109,10 +112,11 @@ test("validateSingle", (t) => {
         for (i = 0; i < ITERATIONS; i++) {
           // validate a single message (`seq` == 1)
           const start = Date.now();
-          validate.validateSingle(msgs[0]);
-          const duration = Date.now() - start;
-          totalDuration += duration;
-          t.pass(`validated 1 message in ${duration} ms`);
+          validate.validateSingle(msgs[0], null, () => {
+            const duration = Date.now() - start;
+            totalDuration += duration;
+            t.pass(`validated 1 message in ${duration} ms`);
+          });
         }
         avgDuration = totalDuration / ITERATIONS;
         console.log(`average duration: ${avgDuration} ms`);
@@ -124,6 +128,7 @@ test("validateSingle", (t) => {
 
 // batch verification and validation for an array of messages
 test("validateBatch", (t) => {
+  t.plan(ITERATIONS);
   db.onReady(() => {
     query(
       fromDB(db),
@@ -134,10 +139,11 @@ test("validateBatch", (t) => {
         for (i = 0; i < ITERATIONS; i++) {
           // validate array of successive messages from a feed
           const start = Date.now();
-          validate.validateBatch(msgs);
-          const duration = Date.now() - start;
-          totalDuration += duration;
-          t.pass(`validated ${MESSAGES} messages in ${duration} ms`);
+          validate.validateBatch(msgs, null, () => {
+            const duration = Date.now() - start;
+            totalDuration += duration;
+            t.pass(`validated ${MESSAGES} messages in ${duration} ms`);
+          });
         }
         avgDuration = totalDuration / ITERATIONS;
         console.log(`average duration: ${avgDuration} ms`);
@@ -149,6 +155,7 @@ test("validateBatch", (t) => {
 
 // batch verification and validation for an array of out-of-order messages
 test("validateOOOBatch", (t) => {
+  t.plan(ITERATIONS);
   db.onReady(() => {
     query(
       fromDB(db),
@@ -160,10 +167,11 @@ test("validateOOOBatch", (t) => {
           const start = Date.now();
           // shuffle array of msgs to generate out-of-order state
           msgs.sort(() => Math.random() - 0.5);
-          validate.validateOOOBatch(msgs);
-          const duration = Date.now() - start;
-          totalDuration += duration;
-          t.pass(`validated ${MESSAGES} messages in ${duration} ms`);
+          validate.validateOOOBatch(msgs, () => {
+            const duration = Date.now() - start;
+            totalDuration += duration;
+            t.pass(`validated ${MESSAGES} messages in ${duration} ms`);
+          });
         }
         avgDuration = totalDuration / ITERATIONS;
         console.log(`average duration: ${avgDuration} ms`);
