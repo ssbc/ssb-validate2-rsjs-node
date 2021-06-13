@@ -4,9 +4,10 @@ use node_bindgen::derive::node_bindgen;
 use ssb_validate::{
     par_validate_message_hash_chain_of_feed, par_validate_multi_author_message_hash_chain_of_feed,
     par_validate_ooo_message_hash_chain_of_feed, validate_message_hash_chain,
-    validate_multi_author_message_hash_chain, validate_ooo_message_hash_chain,
+    validate_message_value_hash_chain, validate_multi_author_message_hash_chain,
+    validate_ooo_message_hash_chain,
 };
-use ssb_verify_signatures::{par_verify_messages, verify_message};
+use ssb_verify_signatures::{par_verify_messages, verify_message, verify_message_value};
 
 /// Verify signatures for an array of messages.
 ///
@@ -39,18 +40,18 @@ fn verify_messages(array: Vec<String>) -> Option<String> {
 
 /// Verify signature and perform validation for a single message.
 ///
-/// Takes a message as the first argument and an optional previous message as the second
+/// Takes a message `value` as the first argument and an optional previous message `value` as the second
 /// argument. The previous message argument is expected when the message to be validated is not the
 /// first in the feed (ie. sequence number != 1 and previous != null). If
 /// verification or validation fails, the cause of the error is returned along with the offending
 /// message.
 #[node_bindgen(name = "validateSingle")]
-fn verify_validate_message(message: String, previous: Option<String>) -> Option<String> {
-    let msg_bytes = message.into_bytes();
+fn verify_validate_message(msg_value: String, previous: Option<String>) -> Option<String> {
+    let msg_bytes = msg_value.into_bytes();
     let previous_msg_bytes = previous.map(|msg| msg.into_bytes());
 
     // attempt verification and match on error to find invalid message
-    match verify_message(&msg_bytes) {
+    match verify_message_value(&msg_bytes) {
         Ok(_) => (),
         Err(e) => {
             let invalid_msg_str = std::str::from_utf8(&msg_bytes).unwrap();
@@ -60,7 +61,7 @@ fn verify_validate_message(message: String, previous: Option<String>) -> Option<
     };
 
     // attempt validation and match on error to find invalid message
-    match validate_message_hash_chain(&msg_bytes, previous_msg_bytes) {
+    match validate_message_value_hash_chain(&msg_bytes, previous_msg_bytes) {
         Ok(_) => None,
         Err(e) => {
             let invalid_msg_str = std::str::from_utf8(&msg_bytes).unwrap();

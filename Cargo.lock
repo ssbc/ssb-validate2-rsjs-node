@@ -1667,7 +1667,8 @@ dependencies = [
 [[package]]
 name = "ssb-legacy-msg-data"
 version = "0.1.2"
-source = "git+https://github.com/mycognosist/legacy-msg-data#366306a58c751d1bdf13419313796d4e3d92cae2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee9169f31b74aeae161e315af7da6fbc9c41a1c8b38c586d7f8df26d3eb43251"
 dependencies = [
  "base64 0.10.1",
  "encode_unicode",
@@ -1681,8 +1682,7 @@ dependencies = [
 [[package]]
 name = "ssb-legacy-msg-data"
 version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee9169f31b74aeae161e315af7da6fbc9c41a1c8b38c586d7f8df26d3eb43251"
+source = "git+https://github.com/mycognosist/legacy-msg-data#366306a58c751d1bdf13419313796d4e3d92cae2"
 dependencies = [
  "base64 0.10.1",
  "encode_unicode",
