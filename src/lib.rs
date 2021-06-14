@@ -1,13 +1,23 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 use node_bindgen::derive::node_bindgen;
+use ssb_legacy_msg_data::json;
 use ssb_validate::{
     par_validate_message_hash_chain_of_feed, par_validate_multi_author_message_hash_chain_of_feed,
     par_validate_ooo_message_hash_chain_of_feed, validate_message_hash_chain,
     validate_message_value_hash_chain, validate_multi_author_message_hash_chain,
-    validate_ooo_message_hash_chain,
+    validate_ooo_message_hash_chain, SsbMessage, SsbMessageValue,
 };
 use ssb_verify_signatures::{par_verify_messages, verify_message, verify_message_value};
+
+// TODO: consider taking a Vec<msg_bytes> to allow for batch processing
+fn value_to_keyvalue(msg_bytes: &[u8]) -> String {
+    let key = ssb_validate::multihash_from_bytes(msg_bytes);
+    // should be safe to `unwrap` since we validate before calling this function
+    let value = json::from_slice::<SsbMessageValue>(msg_bytes).unwrap();
+    let kv = SsbMessage { key, value };
+    json::to_string(&kv, false).unwrap()
+}
 
 /// Verify signatures for an array of messages.
 ///
@@ -62,13 +72,16 @@ fn verify_validate_message(msg_value: String, previous: Option<String>) -> Optio
 
     // attempt validation and match on error to find invalid message
     match validate_message_value_hash_chain(&msg_bytes, previous_msg_bytes) {
-        Ok(_) => None,
+        Ok(_) => (),
         Err(e) => {
             let invalid_msg_str = std::str::from_utf8(&msg_bytes).unwrap();
             let err_msg = format!("found invalid message: {}: {}", e, invalid_msg_str);
-            Some(err_msg)
+            return Some(err_msg);
         }
-    }
+    };
+
+    // return the message as a json string of `key, value` object
+    Some(value_to_keyvalue(&msg_bytes))
 }
 
 /// Verify signatures and perform validation for an array of ordered messages by a single author.
