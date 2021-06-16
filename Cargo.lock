@@ -1706,8 +1706,8 @@ dependencies = [
 
 [[package]]
 name = "ssb-validate"
-version = "1.2.1"
-source = "git+https://github.com/sunrise-choir/ssb-validate#a7cefe3f9eab8a094e0e46431da918010f1cee3c"
+version = "1.4.0"
+source = "git+https://github.com/sunrise-choir/ssb-validate#f1badfbb8238ac81de4ecf7ac12cb0727f070df7"
 dependencies = [
  "lazy_static",
  "rayon",
@@ -1721,10 +1721,9 @@ dependencies = [
 
 [[package]]
 name = "ssb-validate2-rsjs-node"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "node-bindgen",
- "ssb-legacy-msg-data 0.1.3",
  "ssb-validate",
  "ssb-verify-signatures",
 ]
