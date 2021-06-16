@@ -4,6 +4,8 @@ Cryptographic validation of Scuttlebutt messages in the form of Rust bindings fo
 
 Perform batch verification and validation of SSB message values using [ssb-verify-signatures](https://crates.io/crates/ssb-verify-signatures) and [ssb-validate](https://github.com/mycognosist/ssb-validate) from the [Sunrise Choir](https://github.com/sunrise-choir).
 
+**Note**: messages are expected to be values and not KVT's (`key, value, timestamp`). The key is returned for each successfully validated message.
+
 The [node-bindgen](https://github.com/infinyon/node-bindgen) crate is currently used to generate the bindings from Rust code.
 
 ## Build
