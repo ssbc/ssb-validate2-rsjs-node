@@ -33,23 +33,19 @@ const MESSAGES = 5;
 const AUTHORS = 1;
 
 const validMsg = {
-  key: "%kmXb3MXtBJaNugcEL/Q7G40DgcAkMNTj3yhmxKHjfCM=.sha256",
-  value: {
-    previous: "%IIjwbJbV3WBE/SBLnXEv5XM3Pr+PnMkrAJ8F+7TsUVQ=.sha256",
-    author: "@U5GvOKP/YUza9k53DSXxT0mk3PIrnyAmessvNfZl5E0=.ed25519",
-    sequence: 8,
-    timestamp: 1470187438539,
-    hash: "sha256",
-    content: {
-      type: "contact",
-      contact: "@ye+QM09iPcDJD6YvQYjoQc7sLF/IFhmNbEqgdzQo3lQ=.ed25519",
-      following: true,
-      blocking: false,
-    },
-    signature:
-      "PkZ34BRVSmGG51vMXo4GvaoS/2NBc0lzdFoVv4wkI8E8zXv4QYyE5o2mPACKOcrhrLJpymLzqpoE70q78INuBg==.sig.ed25519",
+  previous: "%IIjwbJbV3WBE/SBLnXEv5XM3Pr+PnMkrAJ8F+7TsUVQ=.sha256",
+  author: "@U5GvOKP/YUza9k53DSXxT0mk3PIrnyAmessvNfZl5E0=.ed25519",
+  sequence: 8,
+  timestamp: 1470187438539,
+  hash: "sha256",
+  content: {
+    type: "contact",
+    contact: "@ye+QM09iPcDJD6YvQYjoQc7sLF/IFhmNbEqgdzQo3lQ=.ed25519",
+    following: true,
+    blocking: false,
   },
-  timestamp: 1571140551543,
+  signature:
+    "PkZ34BRVSmGG51vMXo4GvaoS/2NBc0lzdFoVv4wkI8E8zXv4QYyE5o2mPACKOcrhrLJpymLzqpoE70q78INuBg==.sig.ed25519",
 };
 
 test("generate fixture with flumelog-offset", (t) => {
@@ -92,11 +88,13 @@ test("batch verification of message signatures", (t) => {
   db.onReady(() => {
     query(
       fromDB(db),
-      toCallback((err, msgs) => {
+      toCallback((err, kvtMsgs) => {
         if (err) t.fail(err);
+        // map msgs to msg.value for each
+        const msgs = kvtMsgs.map(msg => msg.value);
         // attempt verification of all messages
-        validate.verifySignatures(msgs, (err) => {
-          t.equal(err, null, "success");
+        validate.verifySignatures(msgs, (err, res) => {
+          t.equal(err, null, "success: err is null");
           t.pass(`validated ${MESSAGES} messages`);
           t.end();
         });
@@ -109,13 +107,14 @@ test("batch verification of out-of-order message signatures", (t) => {
   db.onReady(() => {
     query(
       fromDB(db),
-      toCallback((err, msgs) => {
+      toCallback((err, kvtMsgs) => {
         if (err) t.fail(err);
+        const msgs = kvtMsgs.map(msg => msg.value);
         // shuffle the messages (generate out-of-order state)
         msgs.sort(() => Math.random() - 0.5);
         // attempt verification of all messages
-        validate.verifySignatures(msgs, (err) => {
-          t.equal(err, null, "success");
+        validate.verifySignatures(msgs, (err, res) => {
+          t.equal(err, null, "success: err is null");
           t.pass(`validated ${MESSAGES} messages`);
           t.end();
         })
@@ -126,8 +125,9 @@ test("batch verification of out-of-order message signatures", (t) => {
 
 test("verification of single message signature (valid)", (t) => {
   let msgs = [validMsg];
-  validate.verifySignatures(msgs, (err) => {
-    t.equal(err, null, "success");
+  validate.verifySignatures(msgs, (err, res) => {
+    t.equal(err, null, "success: err is null");
+    t.deepEqual(res, [ '%kmXb3MXtBJaNugcEL/Q7G40DgcAkMNTj3yhmxKHjfCM=.sha256' ], "success: returned key is correct");
     t.pass(`validated ${MESSAGES} messages`);
     t.end();
   })
@@ -135,9 +135,9 @@ test("verification of single message signature (valid)", (t) => {
 
 test("verification of single message signature (invalid)", (t) => {
   let invalidMsg = validMsg;
-  invalidMsg.value.content.following = false;
+  invalidMsg.content.following = false;
   let msgs = [invalidMsg];
-  validate.verifySignatures(msgs, (err) => {
+  validate.verifySignatures(msgs, (err, res) => {
     t.match(
       err,
       /Signature was invalid/,
@@ -151,11 +151,13 @@ test("validation of first message (`seq` == 1) without `previous`", (t) => {
   db.onReady(() => {
     query(
       fromDB(db),
-      toCallback((err, msgs) => {
+      toCallback((err, kvtMsgs) => {
         if (err) t.fail(err);
+        const msgs = kvtMsgs.map(msg => msg.value);
         // attempt validation of single message (assume `previous` is null)
-        validate.validateSingle(msgs[0], null, (err) => {
-          t.equal(err, null, "success");
+        validate.validateSingle(msgs[0], null, (err, res) => {
+          t.equal(err, null, "success: err is null");
+          // maybe we can check the key here somehow? (res) is-canonical-base64 maybe?
           t.pass(`validated ${MESSAGES} messages`);
           t.end();
         })
@@ -168,11 +170,12 @@ test("validation of a single message with `previous`", (t) => {
   db.onReady(() => {
     query(
       fromDB(db),
-      toCallback((err, msgs) => {
+      toCallback((err, kvtMsgs) => {
         if (err) t.fail(err);
+        const msgs = kvtMsgs.map(msg => msg.value);
         // attempt validation of single message (include previous message)
-        validate.validateSingle(msgs[1], msgs[0], (err) => {
-          t.equal(err, null, "success");
+        validate.validateSingle(msgs[1], msgs[0], (err, res) => {
+          t.equal(err, null, "success: err is null");
           t.pass(`validated ${MESSAGES} messages`);
           t.end();
         })
@@ -185,10 +188,11 @@ test("validation of a single message (`seq` > 1) without `previous`", (t) => {
   db.onReady(() => {
     query(
       fromDB(db),
-      toCallback((err, msgs) => {
+      toCallback((err, kvtMsgs) => {
         if (err) t.fail(err);
+        const msgs = kvtMsgs.map(msg => msg.value);
         // attempt validation of a single message without `previous`
-        validate.validateSingle(msgs[3], null, (err) => {
+        validate.validateSingle(msgs[3], null, (err, res) => {
           t.match(
             err,
             /The first message of a feed must have seq of 1/,
@@ -205,11 +209,12 @@ test("batch validation of full feed", (t) => {
   db.onReady(() => {
     query(
       fromDB(db),
-      toCallback((err, msgs) => {
+      toCallback((err, kvtMsgs) => {
         if (err) t.fail(err);
+        const msgs = kvtMsgs.map(msg => msg.value);
         // attempt validation of all messages (assume `previous` is null)
-        validate.validateBatch(msgs, null, (err) => {
-          t.equal(err, null, "success");
+        validate.validateBatch(msgs, null, (err, res) => {
+          t.equal(err, null, "success: err is null");
           t.pass(`validated ${MESSAGES} messages`);
           t.end();
         })
@@ -222,13 +227,14 @@ test("batch validation of partial feed (previous seq == 1)", (t) => {
   db.onReady(() => {
     query(
       fromDB(db),
-      toCallback((err, msgs) => {
+      toCallback((err, kvtMsgs) => {
         if (err) t.fail(err);
+        const msgs = kvtMsgs.map(msg => msg.value);
         // shift first msg into `previous`
         previous = msgs.shift();
         // attempt validation of all messages
-        validate.validateBatch(msgs, previous, (err) => {
-          t.equal(err, null, "success");
+        validate.validateBatch(msgs, previous, (err, res) => {
+          t.equal(err, null, "success: err is null");
           t.pass(`validated ${MESSAGES} messages`);
           t.end();
         })
@@ -241,15 +247,16 @@ test("batch validation of partial feed (previous seq > 1)", (t) => {
   db.onReady(() => {
     query(
       fromDB(db),
-      toCallback((err, msgs) => {
+      toCallback((err, kvtMsgs) => {
         if (err) t.fail(err);
+        const msgs = kvtMsgs.map(msg => msg.value);
         // skip first msg in the array
         first = msgs.shift();
         // shift second msg into `previous`
         previous = msgs.shift();
         // attempt validation of all messages
-        validate.validateBatch(msgs, previous, (err) => {
-          t.equal(err, null, "success");
+        validate.validateBatch(msgs, previous, (err, res) => {
+          t.equal(err, null, "success: err is null");
           t.pass(`validated ${MESSAGES} messages`);
           t.end();
         })
@@ -262,12 +269,13 @@ test("batch validation of partial feed without `previous`", (t) => {
   db.onReady(() => {
     query(
       fromDB(db),
-      toCallback((err, msgs) => {
+      toCallback((err, kvtMsgs) => {
         if (err) t.fail(err);
+        const msgs = kvtMsgs.map(msg => msg.value);
         // shift first msg into `previous`
         previous = msgs.shift();
         // attempt validation of all messages without `previous`
-        validate.validateBatch(msgs, null, (err) => {
+        validate.validateBatch(msgs, null, (err, res) => {
           t.match(
             err,
             /The first message of a feed must have seq of 1/,
@@ -284,13 +292,14 @@ test("batch validation of out-of-order messages", (t) => {
   db.onReady(() => {
     query(
       fromDB(db),
-      toCallback((err, msgs) => {
+      toCallback((err, kvtMsgs) => {
         if (err) t.fail(err);
+        const msgs = kvtMsgs.map(msg => msg.value);
         // shuffle the messages (generate out-of-order state)
         msgs.sort(() => Math.random() - 0.5);
         // attempt validation of all messages
-        validate.validateOOOBatch(msgs, (err) => {
-          t.equal(err, null, "success");
+        validate.validateOOOBatch(msgs, (err, res) => {
+          t.equal(err, null, "success: err is null");
           t.pass(`validated ${MESSAGES} messages`);
           t.end();
         })

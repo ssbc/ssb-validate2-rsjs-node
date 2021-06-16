@@ -2,7 +2,9 @@
 
 Cryptographic validation of Scuttlebutt messages in the form of Rust bindings for Node.js.
 
-Perform batch verification and validation of SSB messages using [ssb-verify-signatures](https://crates.io/crates/ssb-verify-signatures) and [ssb-validate](https://github.com/mycognosist/ssb-validate) from the [Sunrise Choir](https://github.com/sunrise-choir).
+Perform batch verification and validation of SSB message values using [ssb-verify-signatures](https://crates.io/crates/ssb-verify-signatures) and [ssb-validate](https://github.com/mycognosist/ssb-validate) from the [Sunrise Choir](https://github.com/sunrise-choir).
+
+**Note**: messages are expected to be values and not KVT's (`key, value, timestamp`). The key is returned for each successfully validated message.
 
 The [node-bindgen](https://github.com/infinyon/node-bindgen) crate is currently used to generate the bindings from Rust code.
 
@@ -42,7 +44,7 @@ npm run perf
 
 The default values for the performance benchmarks (`test/perf.js`) are 100 messages from 1 author, for a total of 10 iterations. These value constants can be changed in `test/perf.js`. Performance benchmarks for the multi-author method default to 100 messages from 5 authors, for a total of 10 iterations (`test/multiAuthorPerf.js`).
 
-## Releasing new versions
+## Releasing New Versions
 
 To release a new version, all that you need to do is update the version number in `package.json` and commit with a message that starts with the word "release", e.g. `release 1.1.0`. Then, CI (GitHub Actions) will detect that, and compile this library for many variations of operating system and Node.js versions and then publish those as prebuilds to NPM. This repository has an environment variable `NPM_TOKEN` set up so that GitHub Actions has publish permissions for this package.
 

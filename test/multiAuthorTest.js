@@ -72,8 +72,9 @@ test("batch validation of out-of-order multi-author messages", (t) => {
   db.onReady(() => {
     query(
       fromDB(db),
-      toCallback((err, msgs) => {
+      toCallback((err, kvtMsgs) => {
         if (err) t.fail(err);
+        const msgs = kvtMsgs.map(msg => msg.value);
         // shuffle the messages (generate out-of-order state)
         msgs.sort(() => Math.random() - 0.5);
         // attempt validation of all messages

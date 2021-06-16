@@ -8,16 +8,20 @@ const stringify = (msg) => JSON.stringify(msg, null, 2)
 const verifySignatures = (msgs, cb) => {
   if (!Array.isArray(msgs)) return "input must be an array of message objects";
   const jsonMsgs = msgs.map(stringify);
-  cb(v.verifySignatures(jsonMsgs));
+  const [err, result] = v.verifySignatures(jsonMsgs);
+  cb(err, result);
 };
 
 const validateSingle = (msg, previous, cb) => {
   const jsonMsg = stringify(msg);
   if (previous) {
     const jsonPrevious = stringify(previous);
-    cb(v.validateSingle(jsonMsg, jsonPrevious));
+    // `result` is a string of the hash (`key`) for the given `jsonMsg` value
+    const [err, result] = v.validateSingle(jsonMsg, jsonPrevious);
+    cb(err, result);
   } else {
-    cb(v.validateSingle(jsonMsg));
+    const [err, result] = v.validateSingle(jsonMsg);
+    cb(err, result);
   }
 };
 
@@ -26,23 +30,28 @@ const validateBatch = (msgs, previous, cb) => {
   const jsonMsgs = msgs.map(stringify);
   if (previous) {
     const jsonPrevious = stringify(previous);
-    cb(v.validateBatch(jsonMsgs, jsonPrevious));
+    // `result` is an array of strings (each string a `key`) for the given `jsonMsgs`
+    const [err, result] = v.validateBatch(jsonMsgs, jsonPrevious);
+    cb(err, result);
   } else {
-    cb(v.validateBatch(jsonMsgs));
+    const [err, result] = v.validateBatch(jsonMsgs);
+    cb(err, result);
   }
 };
 
 const validateOOOBatch = (msgs, cb) => {
   if (!Array.isArray(msgs)) return "input must be an array of message objects";
   const jsonMsgs = msgs.map(stringify);
-  cb(v.validateOOOBatch(jsonMsgs));
+  const [err, result] = v.validateOOOBatch(jsonMsgs);
+  cb(err, result);
 };
 
 const validateMultiAuthorBatch = (msgs, cb) => {
   if (!Array.isArray(msgs))
     throw new Error("input must be an array of message objects");
   const jsonMsgs = msgs.map(stringify);
-  cb(v.validateMultiAuthorBatch(jsonMsgs));
+  const [err, result] = v.validateMultiAuthorBatch(jsonMsgs);
+  cb(err, result);
 };
 
 // Mirrors the `ready` function for the `web` version of `ssb-validate2-rsjs`.

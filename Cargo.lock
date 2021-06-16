@@ -1667,7 +1667,8 @@ dependencies = [
 [[package]]
 name = "ssb-legacy-msg-data"
 version = "0.1.2"
-source = "git+https://github.com/mycognosist/legacy-msg-data#366306a58c751d1bdf13419313796d4e3d92cae2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee9169f31b74aeae161e315af7da6fbc9c41a1c8b38c586d7f8df26d3eb43251"
 dependencies = [
  "base64 0.10.1",
  "encode_unicode",
@@ -1680,11 +1681,10 @@ dependencies = [
 
 [[package]]
 name = "ssb-legacy-msg-data"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee9169f31b74aeae161e315af7da6fbc9c41a1c8b38c586d7f8df26d3eb43251"
+version = "0.1.3"
+source = "git+https://github.com/sunrise-choir/legacy-msg-data#62671a1285af5765673429e39979cccb4bb5179f"
 dependencies = [
- "base64 0.10.1",
+ "base64 0.13.0",
  "encode_unicode",
  "indexmap",
  "ryu-ecmascript",
@@ -1706,8 +1706,8 @@ dependencies = [
 
 [[package]]
 name = "ssb-validate"
-version = "1.2.0"
-source = "git+https://github.com/mycognosist/ssb-validate#c41c7b2066e0a75fee3a00e548c55c4397f307be"
+version = "1.4.0"
+source = "git+https://github.com/sunrise-choir/ssb-validate#f1badfbb8238ac81de4ecf7ac12cb0727f070df7"
 dependencies = [
  "lazy_static",
  "rayon",
@@ -1715,13 +1715,13 @@ dependencies = [
  "serde",
  "sha2 0.8.2",
  "snafu",
- "ssb-legacy-msg-data 0.1.2 (git+https://github.com/mycognosist/legacy-msg-data)",
+ "ssb-legacy-msg-data 0.1.3",
  "ssb-multiformats",
 ]
 
 [[package]]
 name = "ssb-validate2-rsjs-node"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "node-bindgen",
  "ssb-validate",
@@ -1745,7 +1745,7 @@ dependencies = [
  "serde",
  "serde_json",
  "snafu",
- "ssb-legacy-msg-data 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ssb-legacy-msg-data 0.1.2",
 ]
 
 [[package]]
