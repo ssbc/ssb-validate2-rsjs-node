@@ -79,8 +79,10 @@ test("verifySignatures", (t) => {
   db.onReady(() => {
     query(
       fromDB(db),
-      toCallback((err, msgs) => {
+      toCallback((err, kvtMsgs) => {
         if (err) t.fail(err);
+        // map msgs to msg.value for each
+        const msgs = kvtMsgs.map(msg => msg.value);
         var i;
         var totalDuration = 0;
         for (i = 0; i < ITERATIONS; i++) {
@@ -105,14 +107,14 @@ test("validateSingle", (t) => {
   db.onReady(() => {
     query(
       fromDB(db),
-      toCallback((err, msgs) => {
+      toCallback((err, kvtMsgs) => {
         if (err) t.fail(err);
         var i;
         var totalDuration = 0;
         for (i = 0; i < ITERATIONS; i++) {
           // validate a single message (`seq` == 1)
           const start = Date.now();
-          validate.validateSingle(msgs[0], null, () => {
+          validate.validateSingle(kvtMsgs[0].value, null, () => {
             const duration = Date.now() - start;
             totalDuration += duration;
             t.pass(`validated 1 message in ${duration} ms`);
@@ -132,8 +134,10 @@ test("validateBatch", (t) => {
   db.onReady(() => {
     query(
       fromDB(db),
-      toCallback((err, msgs) => {
+      toCallback((err, kvtMsgs) => {
         if (err) t.fail(err);
+        // map msgs to msg.value for each
+        const msgs = kvtMsgs.map(msg => msg.value);
         var i;
         var totalDuration = 0;
         for (i = 0; i < ITERATIONS; i++) {
@@ -159,8 +163,10 @@ test("validateOOOBatch", (t) => {
   db.onReady(() => {
     query(
       fromDB(db),
-      toCallback((err, msgs) => {
+      toCallback((err, kvtMsgs) => {
         if (err) t.fail(err);
+        // map msgs to msg.value for each
+        const msgs = kvtMsgs.map(msg => msg.value);
         var i;
         var totalDuration = 0;
         for (i = 0; i < ITERATIONS; i++) {
@@ -181,12 +187,14 @@ test("validateOOOBatch", (t) => {
   });
 });
 
-test("appendKVT (legacy validation)", (t) => {
+test("append (legacy validation)", (t) => {
   db.onReady(() => {
     query(
       fromDB(db),
-      toCallback((err, msgs) => {
+      toCallback((err, kvtMsgs) => {
         if (err) t.fail(err);
+        // map msgs to msg.value for each
+        const msgs = kvtMsgs.map(msg => msg.value);
         var i;
         var totalDuration = 0;
         for (i = 0; i < ITERATIONS; i++) {
@@ -195,7 +203,7 @@ test("appendKVT (legacy validation)", (t) => {
           const start = Date.now();
           msgs.forEach(function (msg) {
             try {
-              state = legacyValidate.appendKVT(state, hmac_key, msg);
+              state = legacyValidate.append(state, hmac_key, msg);
             } catch (err) {
               console.log(err);
             }
