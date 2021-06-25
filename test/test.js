@@ -62,14 +62,6 @@ const hmacMsg = {
 const hmacKey = null;
 const hmacVal = "CbwuwYXmZgN7ZSuycCXoKGOTU1dGwBex+paeA2kr37U=";
 
-function toBuffer(buf) {
-  if (buf == null) return buf;
-  if (Buffer.isBuffer(buf)) return buf;
-  var i = buf.indexOf(".");
-  var start = hasSigil(buf) ? 1 : 0;
-  return Buffer.from(buf.substring(start, ~i ? i : buf.length), "base64");
-}
-
 test("generate fixture with flumelog-offset", (t) => {
   generateFixture({
     outputDir: dir,
