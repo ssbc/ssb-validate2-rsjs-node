@@ -35,6 +35,8 @@ const AUTHORS = 5;
 // run each test x times
 const ITERATIONS = 10;
 
+const hmacKey = null;
+
 test("generate fixture with flumelog-offset", (t) => {
   generateFixture({
     outputDir: dir,
@@ -89,7 +91,7 @@ test("validateMultiAuthorBatch", (t) => {
           // shuffle array of msgs to generate out-of-order state
           msgs.sort(() => Math.random() - 0.5);
           const start = Date.now();
-          validate.validateMultiAuthorBatch(msgs, () => {
+          validate.validateMultiAuthorBatch(hmacKey, msgs, () => {
             const duration = Date.now() - start;
             totalDuration += duration;
             t.pass(`validated ${MESSAGES} messages in ${duration} ms`);
@@ -114,12 +116,11 @@ test("append (legacy validation)", (t) => {
         var i;
         var totalDuration = 0;
         for (i = 0; i < ITERATIONS; i++) {
-          var hmac_key = null;
           var state = legacyValidate.initial();
           const start = Date.now();
           msgs.forEach(function (msg) {
             try {
-              state = legacyValidate.append(state, hmac_key, msg);
+              state = legacyValidate.append(state, hmacKey, msg);
             } catch (err) {
               console.log(err);
             }

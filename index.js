@@ -5,52 +5,59 @@ const v = require('node-bindgen-loader')({
 
 const stringify = (msg) => JSON.stringify(msg, null, 2)
 
-const verifySignatures = (msgs, cb) => {
+const verifySignatures = (hmacKey, msgs, cb) => {
   if (!Array.isArray(msgs)) return "input must be an array of message objects";
   const jsonMsgs = msgs.map(stringify);
-  const [err, result] = v.verifySignatures(jsonMsgs);
+  // convert `null` and `undefined` to a string ("none") for easier matching in rustland
+  if (!hmacKey) hmacKey = "none";
+  const [err, result] = v.verifySignatures(hmacKey, jsonMsgs);
   cb(err, result);
 };
 
-const validateSingle = (msg, previous, cb) => {
+const validateSingle = (hmacKey, msg, previous, cb) => {
   const jsonMsg = stringify(msg);
+  // convert `null` and `undefined` to a string ("none") for easier matching in rustland
+  if (!hmacKey) hmacKey = "none";
   if (previous) {
     const jsonPrevious = stringify(previous);
     // `result` is a string of the hash (`key`) for the given `jsonMsg` value
-    const [err, result] = v.validateSingle(jsonMsg, jsonPrevious);
+    const [err, result] = v.validateSingle(hmacKey, jsonMsg, jsonPrevious);
     cb(err, result);
   } else {
-    const [err, result] = v.validateSingle(jsonMsg);
+    const [err, result] = v.validateSingle(hmacKey, jsonMsg);
     cb(err, result);
   }
 };
 
-const validateBatch = (msgs, previous, cb) => {
+const validateBatch = (hmacKey, msgs, previous, cb) => {
   if (!Array.isArray(msgs)) return "input must be an array of message objects";
   const jsonMsgs = msgs.map(stringify);
+  if (!hmacKey) hmacKey = "none";
   if (previous) {
     const jsonPrevious = stringify(previous);
     // `result` is an array of strings (each string a `key`) for the given `jsonMsgs`
-    const [err, result] = v.validateBatch(jsonMsgs, jsonPrevious);
+    const [err, result] = v.validateBatch(hmacKey, jsonMsgs, jsonPrevious);
     cb(err, result);
   } else {
-    const [err, result] = v.validateBatch(jsonMsgs);
+    const [err, result] = v.validateBatch(hmacKey, jsonMsgs);
     cb(err, result);
   }
 };
 
-const validateOOOBatch = (msgs, cb) => {
+const validateOOOBatch = (hmacKey, msgs, cb) => {
   if (!Array.isArray(msgs)) return "input must be an array of message objects";
   const jsonMsgs = msgs.map(stringify);
-  const [err, result] = v.validateOOOBatch(jsonMsgs);
+  if (!hmacKey) hmacKey = "none";
+  const [err, result] = v.validateOOOBatch(hmacKey, jsonMsgs);
   cb(err, result);
 };
 
-const validateMultiAuthorBatch = (msgs, cb) => {
+const validateMultiAuthorBatch = (hmacKey, msgs, cb) => {
   if (!Array.isArray(msgs))
     throw new Error("input must be an array of message objects");
   const jsonMsgs = msgs.map(stringify);
-  const [err, result] = v.validateMultiAuthorBatch(jsonMsgs);
+  if (!hmacKey) hmacKey = "none";
+  const [err, result] = v.validateMultiAuthorBatch(hmacKey, jsonMsgs);
   cb(err, result);
 };
 

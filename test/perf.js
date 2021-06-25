@@ -35,6 +35,8 @@ const AUTHORS = 1;
 // run each test x times
 const ITERATIONS = 10;
 
+const hmacKey = null;
+
 test("generate fixture with flumelog-offset", (t) => {
   generateFixture({
     outputDir: dir,
@@ -87,7 +89,7 @@ test("verifySignatures", (t) => {
         var totalDuration = 0;
         for (i = 0; i < ITERATIONS; i++) {
           const start = Date.now();
-          validate.verifySignatures(msgs, () => {
+          validate.verifySignatures(hmacKey, msgs, () => {
             const duration = Date.now() - start;
             totalDuration += duration;
             t.pass(`verified ${MESSAGES} message signatures in ${duration} ms`);
@@ -114,7 +116,7 @@ test("validateSingle", (t) => {
         for (i = 0; i < ITERATIONS; i++) {
           // validate a single message (`seq` == 1)
           const start = Date.now();
-          validate.validateSingle(kvtMsgs[0].value, null, () => {
+          validate.validateSingle(hmacKey, kvtMsgs[0].value, null, () => {
             const duration = Date.now() - start;
             totalDuration += duration;
             t.pass(`validated 1 message in ${duration} ms`);
@@ -143,7 +145,7 @@ test("validateBatch", (t) => {
         for (i = 0; i < ITERATIONS; i++) {
           // validate array of successive messages from a feed
           const start = Date.now();
-          validate.validateBatch(msgs, null, () => {
+          validate.validateBatch(hmacKey, msgs, null, () => {
             const duration = Date.now() - start;
             totalDuration += duration;
             t.pass(`validated ${MESSAGES} messages in ${duration} ms`);
@@ -173,7 +175,7 @@ test("validateOOOBatch", (t) => {
           const start = Date.now();
           // shuffle array of msgs to generate out-of-order state
           msgs.sort(() => Math.random() - 0.5);
-          validate.validateOOOBatch(msgs, () => {
+          validate.validateOOOBatch(hmacKey, msgs, () => {
             const duration = Date.now() - start;
             totalDuration += duration;
             t.pass(`validated ${MESSAGES} messages in ${duration} ms`);
@@ -198,12 +200,11 @@ test("append (legacy validation)", (t) => {
         var i;
         var totalDuration = 0;
         for (i = 0; i < ITERATIONS; i++) {
-          var hmac_key = null;
           var state = legacyValidate.initial();
           const start = Date.now();
           msgs.forEach(function (msg) {
             try {
-              state = legacyValidate.append(state, hmac_key, msg);
+              state = legacyValidate.append(state, hmacKey, msg);
             } catch (err) {
               console.log(err);
             }

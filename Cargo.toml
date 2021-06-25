@@ -1,6 +1,6 @@
 [package]
 name = "ssb-validate2-rsjs-node"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["Andrew Reid <glyph@mycelial.technology>"]
 edition = "2018"
 
@@ -9,9 +9,9 @@ crate-type = ["cdylib"]
 
 [dependencies]
 node-bindgen = "4.0"
-ssb-validate = { git = "https://github.com/sunrise-choir/ssb-validate" }
-# update to ssb-verify-signatures = "1.0.1" when crates.io has latest
-ssb-verify-signatures = { git = "https://github.com/sunrise-choir/ssb-verify-signatures" }
+ssb-crypto = "0.2.2"
+ssb-validate = "1.4.0"
+ssb-verify-signatures = "1.1.0"
 
 [build-dependencies]
 node-bindgen = { version = "4.0", features = ["build"] }
