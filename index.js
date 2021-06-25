@@ -53,8 +53,7 @@ const validateOOOBatch = (hmacKey, msgs, cb) => {
 };
 
 const validateMultiAuthorBatch = (hmacKey, msgs, cb) => {
-  if (!Array.isArray(msgs))
-    throw new Error("input must be an array of message objects");
+  if (!Array.isArray(msgs)) return "input must be an array of message objects";
   const jsonMsgs = msgs.map(stringify);
   if (!hmacKey) hmacKey = "none";
   const [err, result] = v.validateMultiAuthorBatch(hmacKey, jsonMsgs);
