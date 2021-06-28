@@ -32,6 +32,8 @@ const SEED = "sloop";
 const MESSAGES = 10;
 const AUTHORS = 2;
 
+const hmacKey = null;
+
 test("generate fixture with flumelog-offset", (t) => {
   generateFixture({
     outputDir: dir,
@@ -74,15 +76,15 @@ test("batch validation of out-of-order multi-author messages", (t) => {
       fromDB(db),
       toCallback((err, kvtMsgs) => {
         if (err) t.fail(err);
-        const msgs = kvtMsgs.map(msg => msg.value);
+        const msgs = kvtMsgs.map((msg) => msg.value);
         // shuffle the messages (generate out-of-order state)
         msgs.sort(() => Math.random() - 0.5);
         // attempt validation of all messages
-        validate.validateMultiAuthorBatch(msgs, (err) => {
+        validate.validateMultiAuthorBatch(hmacKey, msgs, (err) => {
           t.equal(err, null, "success");
           t.pass(`validated ${MESSAGES} messages`);
           t.end();
-        })
+        });
       })
     );
   });

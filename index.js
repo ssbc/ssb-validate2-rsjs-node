@@ -1,56 +1,96 @@
-const v = require('node-bindgen-loader')({
-  moduleName: 'ssb-validate2-rsjs-node',
-  dir: __dirname
-})
+const v = require("node-bindgen-loader")({
+  moduleName: "ssb-validate2-rsjs-node",
+  dir: __dirname,
+});
 
-const stringify = (msg) => JSON.stringify(msg, null, 2)
+const stringify = (msg) => JSON.stringify(msg, null, 2);
 
-const verifySignatures = (msgs, cb) => {
-  if (!Array.isArray(msgs)) return "input must be an array of message objects";
+const verifySignatures = (hmacKey, msgs, cb) => {
+  if (!Array.isArray(msgs)) {
+    cb(new Error("input must be an array of message objects"));
+    return;
+  }
   const jsonMsgs = msgs.map(stringify);
-  const [err, result] = v.verifySignatures(jsonMsgs);
+  // convert `null` and `undefined` to a string ("none") for easier matching in rustland
+  if (!hmacKey) hmacKey = "none";
+  const [err, result] = v.verifySignatures(hmacKey, jsonMsgs);
+  if (err) {
+    cb(new Error(err));
+    return;
+  }
   cb(err, result);
 };
 
-const validateSingle = (msg, previous, cb) => {
+const validateSingle = (hmacKey, msg, previous, cb) => {
   const jsonMsg = stringify(msg);
+  // convert `null` and `undefined` to a string ("none") for easier matching in rustland
+  if (!hmacKey) hmacKey = "none";
+  let err;
+  let result;
   if (previous) {
     const jsonPrevious = stringify(previous);
     // `result` is a string of the hash (`key`) for the given `jsonMsg` value
-    const [err, result] = v.validateSingle(jsonMsg, jsonPrevious);
-    cb(err, result);
+    [err, result] = v.validateSingle(hmacKey, jsonMsg, jsonPrevious);
   } else {
-    const [err, result] = v.validateSingle(jsonMsg);
-    cb(err, result);
+    [err, result] = v.validateSingle(hmacKey, jsonMsg);
   }
-};
-
-const validateBatch = (msgs, previous, cb) => {
-  if (!Array.isArray(msgs)) return "input must be an array of message objects";
-  const jsonMsgs = msgs.map(stringify);
-  if (previous) {
-    const jsonPrevious = stringify(previous);
-    // `result` is an array of strings (each string a `key`) for the given `jsonMsgs`
-    const [err, result] = v.validateBatch(jsonMsgs, jsonPrevious);
-    cb(err, result);
-  } else {
-    const [err, result] = v.validateBatch(jsonMsgs);
-    cb(err, result);
+  if (err) {
+    cb(new Error(err));
+    return;
   }
-};
-
-const validateOOOBatch = (msgs, cb) => {
-  if (!Array.isArray(msgs)) return "input must be an array of message objects";
-  const jsonMsgs = msgs.map(stringify);
-  const [err, result] = v.validateOOOBatch(jsonMsgs);
   cb(err, result);
 };
 
-const validateMultiAuthorBatch = (msgs, cb) => {
-  if (!Array.isArray(msgs))
-    throw new Error("input must be an array of message objects");
+const validateBatch = (hmacKey, msgs, previous, cb) => {
+  if (!Array.isArray(msgs)) {
+    cb(new Error("input must be an array of message objects"));
+    return;
+  }
   const jsonMsgs = msgs.map(stringify);
-  const [err, result] = v.validateMultiAuthorBatch(jsonMsgs);
+  if (!hmacKey) hmacKey = "none";
+  let err;
+  let result;
+  if (previous) {
+    const jsonPrevious = stringify(previous);
+    // `result` is an array of strings (each string a `key`) for the given `jsonMsgs`
+    [err, result] = v.validateBatch(hmacKey, jsonMsgs, jsonPrevious);
+  } else {
+    [err, result] = v.validateBatch(hmacKey, jsonMsgs);
+  }
+  if (err) {
+    cb(new Error(err));
+    return;
+  }
+  cb(err, result);
+};
+
+const validateOOOBatch = (hmacKey, msgs, cb) => {
+  if (!Array.isArray(msgs)) {
+    cb(new Error("input must be an array of message objects"));
+    return;
+  }
+  const jsonMsgs = msgs.map(stringify);
+  if (!hmacKey) hmacKey = "none";
+  const [err, result] = v.validateOOOBatch(hmacKey, jsonMsgs);
+  if (err) {
+    cb(new Error(err));
+    return;
+  }
+  cb(err, result);
+};
+
+const validateMultiAuthorBatch = (hmacKey, msgs, cb) => {
+  if (!Array.isArray(msgs)) {
+    cb(new Error("input must be an array of message objects"));
+    return;
+  }
+  const jsonMsgs = msgs.map(stringify);
+  if (!hmacKey) hmacKey = "none";
+  const [err, result] = v.validateMultiAuthorBatch(hmacKey, jsonMsgs);
+  if (err) {
+    cb(new Error(err));
+    return;
+  }
   cb(err, result);
 };
 
