@@ -1,9 +1,9 @@
-const v = require('node-bindgen-loader')({
-  moduleName: 'ssb-validate2-rsjs-node',
-  dir: __dirname
-})
+const v = require("node-bindgen-loader")({
+  moduleName: "ssb-validate2-rsjs-node",
+  dir: __dirname,
+});
 
-const stringify = (msg) => JSON.stringify(msg, null, 2)
+const stringify = (msg) => JSON.stringify(msg, null, 2);
 
 const verifySignatures = (hmacKey, msgs, cb) => {
   if (!Array.isArray(msgs)) {
