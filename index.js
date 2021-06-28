@@ -15,7 +15,7 @@ const verifySignatures = (hmacKey, msgs, cb) => {
   if (!hmacKey) hmacKey = "none";
   const [err, result] = v.verifySignatures(hmacKey, jsonMsgs);
   if (err) {
-    cb(new Error(err), result);
+    cb(new Error(err));
     return;
   }
   cb(err, result);
@@ -35,7 +35,7 @@ const validateSingle = (hmacKey, msg, previous, cb) => {
     [err, result] = v.validateSingle(hmacKey, jsonMsg);
   }
   if (err) {
-    cb(new Error(err), result);
+    cb(new Error(err));
     return;
   }
   cb(err, result);
@@ -58,7 +58,7 @@ const validateBatch = (hmacKey, msgs, previous, cb) => {
     [err, result] = v.validateBatch(hmacKey, jsonMsgs);
   }
   if (err) {
-    cb(new Error(err), result);
+    cb(new Error(err));
     return;
   }
   cb(err, result);
@@ -73,7 +73,7 @@ const validateOOOBatch = (hmacKey, msgs, cb) => {
   if (!hmacKey) hmacKey = "none";
   const [err, result] = v.validateOOOBatch(hmacKey, jsonMsgs);
   if (err) {
-    cb(new Error(err), result);
+    cb(new Error(err));
     return;
   }
   cb(err, result);
@@ -88,7 +88,7 @@ const validateMultiAuthorBatch = (hmacKey, msgs, cb) => {
   if (!hmacKey) hmacKey = "none";
   const [err, result] = v.validateMultiAuthorBatch(hmacKey, jsonMsgs);
   if (err) {
-    cb(new Error(err), result);
+    cb(new Error(err));
     return;
   }
   cb(err, result);
