@@ -1693,7 +1693,7 @@ dependencies = [
 
 [[package]]
 name = "ssb-validate2-rsjs-node"
-version = "0.4.0"
+version = "0.5.1"
 dependencies = [
  "node-bindgen",
  "ssb-crypto",

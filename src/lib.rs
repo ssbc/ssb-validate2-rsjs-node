@@ -3,7 +3,7 @@
 use node_bindgen::core::{buffer::JSArrayBuffer, val::JsEnv, JSValue, NjError};
 use node_bindgen::derive::node_bindgen;
 use node_bindgen::sys::napi_value;
-use ssb_crypto::{AsBytes, NetworkKey};
+use ssb_crypto::{AsBytes, NetworkKey as MsgHmacKey};
 use ssb_validate::{
     message_value::{
         par_validate_message_value, par_validate_message_value_hash_chain_of_feed,
@@ -14,7 +14,7 @@ use ssb_validate::{
 };
 use ssb_verify_signatures::{par_verify_message_values, verify_message_value};
 
-// custom `enum` to allow for type conversion from js
+// custom `enum` to allow type conversion of the message-signing hmac from js
 enum HmacKey {
     Buf(JSArrayBuffer),
     Str(String),
@@ -36,11 +36,18 @@ impl JSValue<'_> for HmacKey {
     }
 }
 
+// The HMAC we are dealing with here is the 'message-signing HMAC' and not the 'network HMAC'
+// which is used during the secret-handshake between peers (aka network identifier, app key
+// or caps key). While both use the same hashing algorithms (`HMAC-SHA-512-256`), they are
+// employed in different ways. Message signing with an HMAC is an optional feature of
+// Scuttlebutt and is not put to use in the main network. This is why a `null` or `None`
+// value is set for the message-signing HMAC when verifying main network message signatures.
+//
 // the `Ok()` variant for `Result` represents a valid hmac key value as a byte vector
 fn is_valid_hmac_key(hmac_key: HmacKey) -> Result<Option<Vec<u8>>, String> {
     match hmac_key {
         HmacKey::Buf(hmac) => {
-            let key = NetworkKey::from_slice(&hmac);
+            let key = MsgHmacKey::from_slice(&hmac);
             match key {
                 None => Err("hmac key invalid: byte length must equal 32".to_string()),
                 Some(key_val) => {
@@ -50,7 +57,7 @@ fn is_valid_hmac_key(hmac_key: HmacKey) -> Result<Option<Vec<u8>>, String> {
             }
         }
         HmacKey::Str(hmac) => {
-            let key = NetworkKey::from_base64(&hmac);
+            let key = MsgHmacKey::from_base64(&hmac);
             // match on what would have been `null` or `undefined` for `hmacKey`
             // in the js function call. these values are considered valid.
             if hmac == "none" {

@@ -59,8 +59,8 @@ const hmacMsg = {
     "w670wqnD1A5blFaYxDiIhPOTwz8I7syVx30jac1feQK/OywHFfrcLVw2S1KmxK9GzWxvKxLMle/jKjf2+pHtAg==.sig.ed25519",
 };
 
-const hmacKey = null;
-const hmacVal = "CbwuwYXmZgN7ZSuycCXoKGOTU1dGwBex+paeA2kr37U=";
+const hmacKey1 = null;
+const hmacKey2 = "CbwuwYXmZgN7ZSuycCXoKGOTU1dGwBex+paeA2kr37U=";
 
 test("generate fixture with flumelog-offset", (t) => {
   generateFixture({
@@ -107,7 +107,7 @@ test("batch verification of message signatures", (t) => {
         // map msgs to msg.value for each
         const msgs = kvtMsgs.map((msg) => msg.value);
         // attempt verification of all messages
-        validate.verifySignatures(hmacKey, msgs, (err, res) => {
+        validate.verifySignatures(hmacKey1, msgs, (err, res) => {
           t.equal(err, null, "success: err is null");
           t.pass(`validated ${MESSAGES} messages`);
           t.end();
@@ -127,7 +127,7 @@ test("batch verification of out-of-order message signatures", (t) => {
         // shuffle the messages (generate out-of-order state)
         msgs.sort(() => Math.random() - 0.5);
         // attempt verification of all messages
-        validate.verifySignatures(hmacKey, msgs, (err, res) => {
+        validate.verifySignatures(hmacKey1, msgs, (err, res) => {
           t.equal(err, null, "success: err is null");
           t.pass(`validated ${MESSAGES} messages`);
           t.end();
@@ -139,7 +139,7 @@ test("batch verification of out-of-order message signatures", (t) => {
 
 test("verification of single message signature (valid)", (t) => {
   let msgs = [validMsg];
-  validate.verifySignatures(hmacKey, msgs, (err, res) => {
+  validate.verifySignatures(hmacKey1, msgs, (err, res) => {
     t.equal(err, null, "success: err is null");
     t.deepEqual(
       res,
@@ -155,9 +155,9 @@ test("verification of single message signature (invalid)", (t) => {
   let invalidMsg = validMsg;
   invalidMsg.content.following = false;
   let msgs = [invalidMsg];
-  validate.verifySignatures(hmacKey, msgs, (err, res) => {
+  validate.verifySignatures(hmacKey1, msgs, (err, res) => {
     t.match(
-      err,
+      err.message,
       /Signature was invalid/,
       "found invalid message: Signature was invalid"
     );
@@ -167,7 +167,7 @@ test("verification of single message signature (invalid)", (t) => {
 
 test("verification of single message signature with hmac", (t) => {
   let msgs = [hmacMsg];
-  validate.verifySignatures(hmacVal, msgs, (err, res) => {
+  validate.verifySignatures(hmacKey2, msgs, (err, res) => {
     t.equal(err, null, "success: err is null");
     t.deepEqual(
       res,
@@ -175,6 +175,18 @@ test("verification of single message signature with hmac", (t) => {
       "success: returned key is correct"
     );
     t.pass(`validated ${MESSAGES} messages`);
+    t.end();
+  });
+});
+
+test("verification with integer as msgs input (should be array of objects)", (t) => {
+  let msgs = 3;
+  validate.verifySignatures(hmacKey2, msgs, (err, res) => {
+    t.match(
+      err.message,
+      /input must be an array of message objects/,
+      "input must be an array of message objects"
+    );
     t.end();
   });
 });
@@ -187,7 +199,7 @@ test("validation of first message (`seq` == 1) without `previous`", (t) => {
         if (err) t.fail(err);
         const msgs = kvtMsgs.map((msg) => msg.value);
         // attempt validation of single message (assume `previous` is null)
-        validate.validateSingle(hmacKey, msgs[0], null, (err, res) => {
+        validate.validateSingle(hmacKey1, msgs[0], null, (err, res) => {
           t.equal(err, null, "success: err is null");
           // maybe we can check the key here somehow? (res) is-canonical-base64 maybe?
           t.pass(`validated ${MESSAGES} messages`);
@@ -206,7 +218,7 @@ test("validation of a single message with `previous`", (t) => {
         if (err) t.fail(err);
         const msgs = kvtMsgs.map((msg) => msg.value);
         // attempt validation of single message (include previous message)
-        validate.validateSingle(hmacKey, msgs[1], msgs[0], (err, res) => {
+        validate.validateSingle(hmacKey1, msgs[1], msgs[0], (err, res) => {
           t.equal(err, null, "success: err is null");
           t.pass(`validated ${MESSAGES} messages`);
           t.end();
@@ -224,9 +236,9 @@ test("validation of a single message (`seq` > 1) without `previous`", (t) => {
         if (err) t.fail(err);
         const msgs = kvtMsgs.map((msg) => msg.value);
         // attempt validation of a single message without `previous`
-        validate.validateSingle(hmacKey, msgs[3], null, (err, res) => {
+        validate.validateSingle(hmacKey1, msgs[3], null, (err, res) => {
           t.match(
-            err,
+            err.message,
             /The first message of a feed must have seq of 1/,
             "found invalid message: The first message of a feed must have seq of 1"
           );
@@ -238,7 +250,7 @@ test("validation of a single message (`seq` > 1) without `previous`", (t) => {
 });
 
 test("validation of a single message with hmac (without `previous`)", (t) => {
-  validate.validateSingle(hmacVal, hmacMsg, null, (err, res) => {
+  validate.validateSingle(hmacKey2, hmacMsg, null, (err, res) => {
     t.equal(err, null, "success: err is null");
     t.equal(
       res,
@@ -268,9 +280,9 @@ test("validation of a single message with hmac as buffer (without `previous`)", 
 });
 
 test("validation of a single hmac'd message without hmac key", (t) => {
-  validate.validateSingle(hmacKey, hmacMsg, null, (err, res) => {
+  validate.validateSingle(hmacKey1, hmacMsg, null, (err, res) => {
     t.match(
-      err,
+      err.message,
       /Signature was invalid/,
       "found invalid message: Signature was invalid"
     );
@@ -281,7 +293,7 @@ test("validation of a single hmac'd message without hmac key", (t) => {
 test("validation of a single hmac'd message with invalid hmac key", (t) => {
   validate.validateSingle("isnotvalid", hmacMsg, null, (err, res) => {
     t.match(
-      err,
+      err.message,
       /string must be base64 encoded/,
       "hmac key invalid: string must be base64 encoded"
     );
@@ -297,7 +309,7 @@ test("batch validation of full feed", (t) => {
         if (err) t.fail(err);
         const msgs = kvtMsgs.map((msg) => msg.value);
         // attempt validation of all messages (assume `previous` is null)
-        validate.validateBatch(hmacKey, msgs, null, (err, res) => {
+        validate.validateBatch(hmacKey1, msgs, null, (err, res) => {
           t.equal(err, null, "success: err is null");
           t.pass(`validated ${MESSAGES} messages`);
           t.end();
@@ -317,7 +329,7 @@ test("batch validation of partial feed (previous seq == 1)", (t) => {
         // shift first msg into `previous`
         previous = msgs.shift();
         // attempt validation of all messages
-        validate.validateBatch(hmacKey, msgs, previous, (err, res) => {
+        validate.validateBatch(hmacKey1, msgs, previous, (err, res) => {
           t.equal(err, null, "success: err is null");
           t.pass(`validated ${MESSAGES} messages`);
           t.end();
@@ -339,7 +351,7 @@ test("batch validation of partial feed (previous seq > 1)", (t) => {
         // shift second msg into `previous`
         previous = msgs.shift();
         // attempt validation of all messages
-        validate.validateBatch(hmacKey, msgs, previous, (err, res) => {
+        validate.validateBatch(hmacKey1, msgs, previous, (err, res) => {
           t.equal(err, null, "success: err is null");
           t.pass(`validated ${MESSAGES} messages`);
           t.end();
@@ -359,9 +371,9 @@ test("batch validation of partial feed without `previous`", (t) => {
         // shift first msg into `previous`
         previous = msgs.shift();
         // attempt validation of all messages without `previous`
-        validate.validateBatch(hmacKey, msgs, null, (err, res) => {
+        validate.validateBatch(hmacKey1, msgs, null, (err, res) => {
           t.match(
-            err,
+            err.message,
             /The first message of a feed must have seq of 1/,
             "found invalid message: The first message of a feed must have seq of 1"
           );
@@ -382,7 +394,7 @@ test("batch validation of out-of-order messages", (t) => {
         // shuffle the messages (generate out-of-order state)
         msgs.sort(() => Math.random() - 0.5);
         // attempt validation of all messages
-        validate.validateOOOBatch(hmacKey, msgs, (err, res) => {
+        validate.validateOOOBatch(hmacKey1, msgs, (err, res) => {
           t.equal(err, null, "success: err is null");
           t.pass(`validated ${MESSAGES} messages`);
           t.end();
