@@ -108,15 +108,19 @@ fn verify_messages(hmac_key: HmacKey, array: Vec<String>) -> (Option<String>, Op
         msgs.push(msg_bytes)
     }
 
-    // attempt batch verification and match on error to find invalid message
+    // attempt batch verification and match on error to find invalid message value
     match par_verify_message_values(&msgs, hmac, None) {
         Ok(_) => (),
         Err(e) => {
             let invalid_msg = &msgs
                 .iter()
-                .find(|msg| verify_message_value(msg, hmac).is_err())
-                .unwrap();
-            let invalid_msg_str = std::str::from_utf8(invalid_msg).unwrap();
+                .find(|msg| verify_message_value(msg, hmac).is_err());
+            let invalid_msg_str = match invalid_msg {
+                Some(msg) => std::str::from_utf8(msg).unwrap_or(
+                    "unable to convert invalid message bytes to string slice; not valid utf8",
+                ),
+                None => "parallel verification failed but no single invalid message was found",
+            };
             let err_msg = format!("found invalid message: {}: {}", e, invalid_msg_str);
             return (Some(err_msg), None);
         }
@@ -161,7 +165,9 @@ fn verify_validate_message(
     match verify_message_value(&msg_bytes, hmac) {
         Ok(_) => (),
         Err(e) => {
-            let invalid_msg_str = std::str::from_utf8(&msg_bytes).unwrap();
+            let invalid_msg_str = std::str::from_utf8(&msg_bytes).unwrap_or(
+                "unable to convert invalid message bytes to string slice; not valid utf8",
+            );
             let err_msg = format!("found invalid message: {}: {}", e, invalid_msg_str);
             return (Some(err_msg), None);
         }
@@ -171,7 +177,9 @@ fn verify_validate_message(
     match validate_message_value_hash_chain(&msg_bytes, previous_msg_bytes) {
         Ok(_) => (),
         Err(e) => {
-            let invalid_msg_str = std::str::from_utf8(&msg_bytes).unwrap();
+            let invalid_msg_str = std::str::from_utf8(&msg_bytes).unwrap_or(
+                "unable to convert invalid message bytes to string slice; not valid utf8",
+            );
             let err_msg = format!("found invalid message: {}: {}", e, invalid_msg_str);
             return (Some(err_msg), None);
         }
@@ -219,9 +227,13 @@ fn verify_validate_messages(
         Err(e) => {
             let invalid_msg = &msgs
                 .iter()
-                .find(|msg| verify_message_value(msg, hmac).is_err())
-                .unwrap();
-            let invalid_msg_str = std::str::from_utf8(invalid_msg).unwrap();
+                .find(|msg| verify_message_value(msg, hmac).is_err());
+            let invalid_msg_str = match invalid_msg {
+                Some(msg) => std::str::from_utf8(msg).unwrap_or(
+                    "unable to convert invalid message bytes to string slice; not valid utf8",
+                ),
+                None => "parallel verification failed but no single invalid message was found",
+            };
             let err_msg = format!("found invalid message: {}: {}", e, invalid_msg_str);
             return (Some(err_msg), None);
         }
@@ -231,11 +243,15 @@ fn verify_validate_messages(
     match par_validate_message_value_hash_chain_of_feed(&msgs, previous_msg.as_ref()) {
         Ok(_) => (),
         Err(e) => {
-            let invalid_message = &msgs
+            let invalid_msg = &msgs
                 .iter()
-                .find(|msg| validate_message_value_hash_chain(msg, previous_msg.as_ref()).is_err())
-                .unwrap();
-            let invalid_msg_str = std::str::from_utf8(invalid_message).unwrap();
+                .find(|msg| validate_message_value_hash_chain(msg, previous_msg.as_ref()).is_err());
+            let invalid_msg_str = match invalid_msg {
+                Some(msg) => std::str::from_utf8(msg).unwrap_or(
+                    "unable to convert invalid message bytes to string slice; not valid utf8",
+                ),
+                None => "parallel validation failed but no single invalid message was found",
+            };
             let err_msg = format!("found invalid message: {}: {}", e, invalid_msg_str);
             return (Some(err_msg), None);
         }
@@ -270,15 +286,19 @@ fn verify_validate_out_of_order_messages(
         msgs.push(msg_bytes)
     }
 
-    // attempt batch verification and match on error to find invalid message
+    // attempt batch verification and match on error to find invalid message value
     match par_verify_message_values(&msgs, hmac, None) {
         Ok(_) => (),
         Err(e) => {
             let invalid_msg = &msgs
                 .iter()
-                .find(|msg| verify_message_value(msg, hmac).is_err())
-                .unwrap();
-            let invalid_msg_str = std::str::from_utf8(invalid_msg).unwrap();
+                .find(|msg| verify_message_value(msg, hmac).is_err());
+            let invalid_msg_str = match invalid_msg {
+                Some(msg) => std::str::from_utf8(msg).unwrap_or(
+                    "unable to convert invalid message bytes to string slice; not valid utf8",
+                ),
+                None => "parallel verification failed but no single invalid message was found",
+            };
             let err_msg = format!("found invalid message: {}: {}", e, invalid_msg_str);
             return (Some(err_msg), None);
         }
@@ -288,11 +308,15 @@ fn verify_validate_out_of_order_messages(
     match par_validate_ooo_message_value_hash_chain_of_feed::<_, &[u8]>(&msgs, None) {
         Ok(_) => (),
         Err(e) => {
-            let invalid_message = &msgs
+            let invalid_msg = &msgs
                 .iter()
-                .find(|msg| validate_ooo_message_value_hash_chain::<_, &[u8]>(msg, None).is_err())
-                .unwrap();
-            let invalid_msg_str = std::str::from_utf8(invalid_message).unwrap();
+                .find(|msg| validate_ooo_message_value_hash_chain::<_, &[u8]>(msg, None).is_err());
+            let invalid_msg_str = match invalid_msg {
+                Some(msg) => std::str::from_utf8(msg).unwrap_or(
+                    "unable to convert invalid message bytes to string slice; not valid utf8",
+                ),
+                None => "parallel validation failed but no single invalid message was found",
+            };
             let err_msg = format!("found invalid message: {}: {}", e, invalid_msg_str);
             return (Some(err_msg), None);
         }
@@ -326,15 +350,19 @@ fn verify_validate_multi_author_messages(
         msgs.push(msg_bytes)
     }
 
-    // attempt batch verification and match on error to find invalid message
+    // attempt batch verification and match on error to find invalid message value
     match par_verify_message_values(&msgs, hmac, None) {
         Ok(_) => (),
         Err(e) => {
             let invalid_msg = &msgs
                 .iter()
-                .find(|msg| verify_message_value(msg, hmac).is_err())
-                .unwrap();
-            let invalid_msg_str = std::str::from_utf8(invalid_msg).unwrap();
+                .find(|msg| verify_message_value(msg, hmac).is_err());
+            let invalid_msg_str = match invalid_msg {
+                Some(msg) => std::str::from_utf8(msg).unwrap_or(
+                    "unable to convert invalid message bytes to string slice; not valid utf8",
+                ),
+                None => "parallel verification failed but no single invalid message was found",
+            };
             let err_msg = format!("found invalid message: {}: {}", e, invalid_msg_str);
             return (Some(err_msg), None);
         }
@@ -344,11 +372,13 @@ fn verify_validate_multi_author_messages(
     match par_validate_message_value(&msgs) {
         Ok(_) => (),
         Err(e) => {
-            let invalid_message = &msgs
-                .iter()
-                .find(|msg| validate_message_value(msg).is_err())
-                .unwrap();
-            let invalid_msg_str = std::str::from_utf8(invalid_message).unwrap();
+            let invalid_msg = &msgs.iter().find(|msg| validate_message_value(msg).is_err());
+            let invalid_msg_str = match invalid_msg {
+                Some(msg) => std::str::from_utf8(msg).unwrap_or(
+                    "unable to convert invalid message bytes to string slice; not valid utf8",
+                ),
+                None => "parallel validation failed but no single invalid message was found",
+            };
             let err_msg = format!("found invalid message: {}: {}", e, invalid_msg_str);
             return (Some(err_msg), None);
         }
