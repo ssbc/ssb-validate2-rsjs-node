@@ -8,7 +8,7 @@
     "url": "https://github.com/ssb-ngi-pointer/ssb-validate2-rsjs-node"
   },
   "author": "Andrew Reid <glyph@mycelial.technology>",
-  "license": "AGPL-3.0",
+  "license": "LGPL-3.0",
   "dependencies": {
     "node-bindgen-loader": "^1.0.1"
   },

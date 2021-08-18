@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: LGPL-3.0-only
 
 use node_bindgen::core::{buffer::JSArrayBuffer, val::JsEnv, JSValue, NjError};
 use node_bindgen::derive::node_bindgen;

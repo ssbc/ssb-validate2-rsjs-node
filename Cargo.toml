@@ -3,15 +3,16 @@ name = "ssb-validate2-rsjs-node"
 version = "0.6.1"
 authors = ["Andrew Reid <glyph@mycelial.technology>"]
 edition = "2018"
+license = "LGPL-3.0"
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
 node-bindgen = "4.0"
-ssb-crypto = "0.2.2"
-ssb-validate = "1.4.0"
-ssb-verify-signatures = "1.1.0"
+ssb-crypto = "0.2.3"
+ssb-validate = "1.4.2"
+ssb-verify-signatures = "1.1.1"
 
 [build-dependencies]
 node-bindgen = { version = "4.0", features = ["build"] }
