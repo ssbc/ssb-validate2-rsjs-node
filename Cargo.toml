@@ -1,6 +1,6 @@
 [package]
 name = "ssb-validate2-rsjs-node"
-version = "0.6.2"
+version = "0.6.1"
 authors = ["Andrew Reid <glyph@mycelial.technology>"]
 edition = "2018"
 license = "LGPL-3.0"
