@@ -9,6 +9,12 @@
   },
   "author": "Andrew Reid <glyph@mycelial.technology>",
   "license": "LGPL-3.0",
+  "files": [
+    "*.js",
+    "package.json.license",
+    "package-lock.json.license",
+    "LICENSES/*"
+  ],
   "dependencies": {
     "node-bindgen-loader": "^1.0.1"
   },

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021 Andrew 'glyph' Reid
+//
+// SPDX-License-Identifier: Unlicense
+
 const validate = require("../");
 const test = require("tape");
 const fs = require("fs");

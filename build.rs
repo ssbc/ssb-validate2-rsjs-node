@@ -1,4 +1,6 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-FileCopyrightText: 2021 Andrew 'glyph' Reid
+//
+// SPDX-License-Identifier: LGPL-3.0-only
 
 fn main() {
     node_bindgen::build::configure();
