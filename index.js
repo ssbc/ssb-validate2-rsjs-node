@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021 Andrew 'glyph' Reid
+//
+// SPDX-License-Identifier: LGPL-3.0-only
+
 const v = require("node-bindgen-loader")({
   moduleName: "ssb-validate2-rsjs-node",
   dir: __dirname,
