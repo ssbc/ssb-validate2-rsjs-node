@@ -1,6 +1,6 @@
 {
   "name": "ssb-validate2-rsjs-node",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Cryptographic validation of Scuttlebutt messages.",
   "main": "index.js",
   "repository": {
