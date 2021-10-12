@@ -57,4 +57,4 @@ To release a new version, all that you need to do is update the version number i
 
 ## License
 
-AGPL 3.0.
+LGPL 3.0.
