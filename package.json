@@ -11,9 +11,12 @@
   "license": "LGPL-3.0",
   "files": [
     "*.js",
+    "src/*",
+    "build.rs",
+    "Cargo.lock",
+    "Cargo.toml",
     "prebuilds",
     "package.json.license",
-    "package-lock.json.license",
     "LICENSES/*"
   ],
   "dependencies": {
